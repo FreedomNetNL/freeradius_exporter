@@ -1,23 +1,30 @@
-project_name: freeradius_exporter
+project_name: freeradius-exporter
 
 builds:
-  - binary: "{{ .ProjectName }}"
-    id: "amd64"
-    hooks:
-      post: upx dist/amd64_linux_amd64/freeradius_exporter
-    goos:
-      - linux
-    goarch:
-      - amd64
-    env:
+  - env:
       - CGO_ENABLED=0
+
+nfpms:
+  - homepage:  https://freedom.nl
+    description: FreeRadius Exporter for Prometheus
+    maintainer: Freedom Internet DevOps <systeembeheer@freedomnet.nl>
+    license: Apache License 2.0
+    vendor: Freedom Internet
+    contents:
+      - src: scripts/defaults
+        dst: /etc/default/prometheus-freeradius-exporter
+      - src: scripts/systemd/prometheus-freeradius-exporter.service
+        dst: /usr/lib/systemd/system/prometheus-freeradius-exporter.service
+    formats:
+      - deb
+      - rpm
+    dependencies:
+      - systemd
+    scripts:
+        postinstall: scripts/postinstall.sh
 
 archives:
   - id: archive
     wrap_in_directory: true
-    name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Arch }}"
     files:
       - README.md
-
-snapshot:
-  name_template: "{{ .Tag }}-snapshot"
